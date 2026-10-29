@@ -1,1 +1,129 @@
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Nunito:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+
+  --color-success: var(--success);
+  --color-info: var(--info);
+  --color-lost: var(--primary);
+  --color-found: var(--info);
+  --color-reunited: var(--success);
+  --color-cream: var(--cream);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  --shadow-soft: 0 1px 2px rgb(45 55 72 / 0.04), 0 8px 24px -8px rgb(45 55 72 / 0.08);
+  --shadow-lift: 0 2px 4px rgb(45 55 72 / 0.04), 0 18px 40px -12px rgb(255 122 89 / 0.25);
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-float-slow: float 8s ease-in-out infinite;
+  --animate-pulse-ring: pulse-ring 2.2s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes pulse-ring {
+    0% {
+      transform: scale(0.8);
+      opacity: 0.7;
+    }
+    100% {
+      transform: scale(2.2);
+      opacity: 0;
+    }
+  }
+}
+
+:root {
+  color-scheme: light;
+  --background: #fff8f3;
+  --foreground: #2d3748;
+  --card: #ffffff;
+  --card-foreground: #2d3748;
+  --popover: #ffffff;
+  --popover-foreground: #2d3748;
+  --primary: #ff7a59;
+  --primary-foreground: #ffffff;
+  --secondary: #ffd166;
+  --secondary-foreground: #2d3748;
+  --muted: #fbefe6;
+  --muted-foreground: #6b7280;
+  --accent: #fff1e8;
+  --accent-foreground: #c2462a;
+  --destructive: #ef4444;
+  --success: #4caf50;
+  --info: #4d96ff;
+  --cream: #fff8f3;
+  --border: #f1e3d8;
+  --input: #ecdcd0;
+  --ring: #ff7a59;
+  --radius: 1rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-heading tracking-tight text-balance;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
