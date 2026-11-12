@@ -1,11 +1,12 @@
+import { BrowserRouter } from "react-router";
+import { AppRouter } from "@/router/AppRouter";
+
 function App() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-100">
-      <h1 className="text-4xl font-bold text-emerald-600">
-        Rastro 🐾
-      </h1>
-    </main>
-  )
+    <BrowserRouter>
+      <AppRouter />
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
