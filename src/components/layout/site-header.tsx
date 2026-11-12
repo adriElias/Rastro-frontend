@@ -2,7 +2,6 @@
 import { Bell, Plus } from "lucide-react";
 import { Link, NavLink } from "react-router";
 import { Logo } from "@/components/brand/logo";
-import { MobileNav } from "@/components/layout/mobile-nav";
 import { action } from "@/lib/ui";
 import { cn } from "@/lib/utils";
 
@@ -68,7 +67,6 @@ export function SiteHeader() {
           </NavLink>
         </div>
       </div>
-      <MobileNav />
     </header>
   );
 }

@@ -18,7 +18,7 @@ export function MobileNav() {
       aria-label="Mobile"
       className="fixed inset-x-3 bottom-3 z-[1100] rounded-3xl border border-border bg-card/95 px-2 pb-[max(env(safe-area-inset-bottom),0.25rem)] pt-1 shadow-[0_12px_40px_-12px_rgb(45_55_72/0.3)] backdrop-blur-xl lg:hidden"
     >
-      <ul className="flex items-end justify-around">
+      <ul className="grid grid-cols-5 items-end">
         {items.map(({ href, label, Icon, primary, match }) => {
           const active = (match ?? [href]).some((route) =>
             pathname.startsWith(route),
@@ -26,7 +26,7 @@ export function MobileNav() {
 
           if (primary) {
             return (
-              <li key={href}>
+              <li key={href} className="flex justify-center">
                 <Link
                   to={href}
                   className="-mt-6 flex flex-col items-center gap-1 text-[11px] font-bold text-foreground"
@@ -41,7 +41,7 @@ export function MobileNav() {
           }
 
           return (
-            <li key={href}>
+            <li key={href} className="flex justify-center">
               <Link
                 to={href}
                 aria-current={active ? "page" : undefined}

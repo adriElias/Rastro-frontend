@@ -39,7 +39,7 @@ describe("SiteHeader", () => {
     );
   });
 
-  it("renders mobile navigation separately from desktop navigation", () => {
+  it("keeps the sticky header free of the viewport-fixed mobile navigation", () => {
     const { container } = render(
       <MemoryRouter initialEntries={["/dashboard"]}>
         <SiteHeader />
@@ -47,12 +47,9 @@ describe("SiteHeader", () => {
     );
 
     const mainNav = within(container).getByRole("navigation", { name: "Main" });
-    const mobileNav = within(container).getByRole("navigation", { name: "Mobile" });
-    expect(mainNav).not.toContainElement(mobileNav);
-    expect(mobileNav).toHaveClass("lg:hidden");
-    expect(within(mobileNav).getByRole("link", { name: "Home" })).toHaveAttribute(
-      "aria-current",
-      "page",
-    );
+    expect(mainNav).toHaveClass("lg:flex");
+    expect(
+      within(container).queryByRole("navigation", { name: "Mobile" }),
+    ).not.toBeInTheDocument();
   });
 });
