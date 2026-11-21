@@ -3,7 +3,9 @@ import { AuthLayout } from "@/layouts/AuthLayout";
 import { MainLayout } from "@/layouts/MainLayout";
 import { HomePage } from "@/pages/HomePage";
 import { LoginPage } from "@/pages/LoginPage";
+import { ReportPage } from "@/pages/ReportPage";
 import { RegisterPage } from "@/pages/RegisterPage";
+import { RequireAuth } from "@/router/RequireAuth";
 
 function PageNotAvailable() {
   return (
@@ -26,6 +28,11 @@ export function AppRouter() {
     <Routes>
       <Route element={<MainLayout />}>
         <Route index element={<HomePage />} />
+        <Route path="/report" element={<ReportPage />} />
+        <Route element={<RequireAuth />}>
+          <Route path="/report/lost" element={<PageNotAvailable />} />
+          <Route path="/report/found" element={<PageNotAvailable />} />
+        </Route>
         <Route path="*" element={<PageNotAvailable />} />
       </Route>
 
