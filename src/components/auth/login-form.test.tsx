@@ -9,6 +9,7 @@ import { useState } from "react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AuthProvider } from "@/auth/AuthProvider";
+import { clearAccessToken } from "@/auth/authTokenStore";
 import { useAuth } from "@/auth/useAuth";
 import { LoginForm } from "@/components/auth/login-form";
 import {
@@ -24,7 +25,7 @@ vi.mock("@/services/auth/login", async (importOriginal) => {
 });
 
 const mockedLogin = vi.mocked(login);
-const TEST_TOKEN = "test-access-token-not-for-display";
+const TEST_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIiwiZXhwIjo0MTAyNDQ0ODAwfQ.signature";
 
 function CurrentPath() {
   const location = useLocation();
@@ -38,7 +39,7 @@ function AuthStateProbe() {
       <span data-testid="auth-state">
         {hasAccessToken ? "token-present" : "no-token"}
       </span>
-      <button type="button" onClick={() => setAccessToken("existing-token")}>
+      <button type="button" onClick={() => setAccessToken(TEST_TOKEN)}>
         Seed existing token
       </button>
     </div>
@@ -71,6 +72,8 @@ function enterCredentials(container: HTMLElement, credentials: LoginCredentials)
 
 afterEach(() => {
   cleanup();
+  clearAccessToken();
+  localStorage.clear();
 });
 
 beforeEach(() => {
@@ -173,6 +176,24 @@ describe("LoginForm", () => {
 
     await act(async () => resolveLogin({ accessToken: TEST_TOKEN }));
     expect(await content.findByRole("status")).toHaveTextContent("Login successful.");
+  });
+
+  it("rejects an invalid access token returned by the backend", async () => {
+    mockedLogin.mockResolvedValue({ accessToken: "invalid-token" });
+    const { container } = render(<TestApp />);
+    const content = within(container);
+    enterCredentials(container, {
+      email: "person@example.com",
+      password: "password",
+    });
+
+    fireEvent.submit(container.querySelector("form")!);
+
+    expect(await content.findByRole("alert")).toHaveTextContent(
+      "Unable to complete the login request.",
+    );
+    expect(content.queryByRole("status")).not.toBeInTheDocument();
+    expect(content.getByTestId("auth-state")).toHaveTextContent("no-token");
   });
 
   it.each([

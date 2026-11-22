@@ -18,6 +18,8 @@ vi.mock("@/services/auth/register", async (importOriginal) => {
 });
 
 const mockedRegister = vi.mocked(register);
+const EXISTING_TOKEN =
+  "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIiwiZXhwIjo0MTAyNDQ0ODAwfQ.signature";
 
 const successfulResponse: RegisterResponse = {
   id: "b5c8610d-93c4-4b82-97e1-1a5873cbaf5a",
@@ -57,7 +59,7 @@ function AuthStateProbe() {
       <span data-testid="auth-state">
         {hasAccessToken ? "token-present" : "no-token"}
       </span>
-      <button type="button" onClick={() => setAccessToken("existing-token") }>
+      <button type="button" onClick={() => setAccessToken(EXISTING_TOKEN)}>
         Seed existing token
       </button>
     </div>

@@ -2,8 +2,12 @@ import { cleanup, fireEvent, render, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AuthProvider } from "@/auth/AuthProvider";
+import { clearAccessToken } from "@/auth/authTokenStore";
 import { LoginPage } from "@/pages/LoginPage";
 import { login, LoginApiError } from "@/services/auth/login";
+
+const TEST_TOKEN =
+  "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIiwiZXhwIjo0MTAyNDQ0ODAwfQ.signature";
 
 vi.mock("@/services/auth/login", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/services/auth/login")>();
@@ -44,6 +48,8 @@ function submitValidCredentials(container: HTMLElement) {
 
 afterEach(() => {
   cleanup();
+  clearAccessToken();
+  localStorage.clear();
 });
 
 beforeEach(() => {
@@ -70,7 +76,7 @@ describe("LoginPage return navigation", () => {
   });
 
   it("returns to the selected reporting route after successful login", async () => {
-    mockedLogin.mockResolvedValue({ accessToken: "test-access-token" });
+    mockedLogin.mockResolvedValue({ accessToken: TEST_TOKEN });
     const { container } = renderLogin({ returnTo: "/report/found" });
 
     submitValidCredentials(container);
@@ -82,7 +88,7 @@ describe("LoginPage return navigation", () => {
   });
 
   it("preserves direct-login behavior when there is no return destination", async () => {
-    mockedLogin.mockResolvedValue({ accessToken: "test-access-token" });
+    mockedLogin.mockResolvedValue({ accessToken: TEST_TOKEN });
     const { container } = renderLogin();
     const content = within(container);
 
@@ -102,7 +108,7 @@ describe("LoginPage return navigation", () => {
     { returnTo: "/dashboard" },
     { returnTo: 42 },
   ])("ignores an unsafe or unsupported return destination", async (state) => {
-    mockedLogin.mockResolvedValue({ accessToken: "test-access-token" });
+    mockedLogin.mockResolvedValue({ accessToken: TEST_TOKEN });
     const { container } = renderLogin(state);
     const content = within(container);
 

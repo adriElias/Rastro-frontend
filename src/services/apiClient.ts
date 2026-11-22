@@ -1,22 +1,16 @@
-import axios, { AxiosHeaders, type InternalAxiosRequestConfig } from "axios";
+import axios, {
+  AxiosHeaders,
+  type AxiosError,
+  type InternalAxiosRequestConfig,
+} from "axios";
+import {
+  clearAccessTokenIfCurrent,
+  getAccessToken,
+} from "@/auth/authTokenStore";
 
 export const apiClient = axios.create({
   baseURL: "/api",
 });
-
-type AccessTokenReader = () => string | null;
-
-let accessTokenReader: AccessTokenReader = () => null;
-
-export function registerAccessTokenReader(reader: AccessTokenReader) {
-  accessTokenReader = reader;
-
-  return () => {
-    if (accessTokenReader === reader) {
-      accessTokenReader = () => null;
-    }
-  };
-}
 
 function requestUrl(config: InternalAxiosRequestConfig) {
   if (typeof window === "undefined") return null;
@@ -55,7 +49,7 @@ apiClient.interceptors.request.use((config) => {
     return config;
   }
 
-  const token = accessTokenReader();
+  const token = getAccessToken();
   if (token) {
     headers.set("Authorization", `Bearer ${token}`);
   } else {
@@ -63,4 +57,19 @@ apiClient.interceptors.request.use((config) => {
   }
 
   return config;
+});
+
+apiClient.interceptors.response.use(undefined, (error: AxiosError) => {
+  if (error.response?.status !== 401 || !error.config) {
+    return Promise.reject(error);
+  }
+
+  const headers = AxiosHeaders.from(error.config.headers);
+  const authorization = headers.get("Authorization");
+  const token = typeof authorization === "string" && authorization.startsWith("Bearer ")
+    ? authorization.slice("Bearer ".length)
+    : null;
+
+  if (token) clearAccessTokenIfCurrent(token);
+  return Promise.reject(error);
 });
