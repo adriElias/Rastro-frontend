@@ -44,7 +44,10 @@ function TestAuthProvider({
   const value = useMemo(
     () => ({
       hasAccessToken,
-      setAccessToken: () => setHasAccessToken(true),
+      setAccessToken: () => {
+        setHasAccessToken(true);
+        return true;
+      },
       logout: () => setHasAccessToken(false),
     }),
     [hasAccessToken],

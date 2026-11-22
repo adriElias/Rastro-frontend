@@ -45,8 +45,11 @@ export function LoginForm() {
     try {
       const response = await login({ email, password });
       if (!mountedRef.current) return;
-      setAccessToken(response.accessToken);
-      setStatus("Login successful.");
+      if (setAccessToken(response.accessToken)) {
+        setStatus("Login successful.");
+      } else {
+        setError("Unable to complete the login request.");
+      }
     } catch (requestError) {
       if (!mountedRef.current) return;
       setError(
