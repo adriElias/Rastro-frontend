@@ -1,41 +1,40 @@
 import {
-  useCallback,
-  useEffect,
   useMemo,
   useRef,
-  useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 import { AuthContext } from "@/auth/AuthContext";
-import { registerAccessTokenReader } from "@/services/apiClient";
+import {
+  clearAccessToken,
+  getAccessToken,
+  initializeAccessToken,
+  setAccessToken,
+  subscribeToAccessToken,
+} from "@/auth/authTokenStore";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [accessToken, setTokenState] = useState<string | null>(null);
-  const accessTokenRef = useRef<string | null>(null);
-
-  const setAccessToken = useCallback((token: string) => {
-    const nextToken = token.length > 0 ? token : null;
-    accessTokenRef.current = nextToken;
-    setTokenState(nextToken);
-  }, []);
-
-  const logout = useCallback(() => {
-    accessTokenRef.current = null;
-    setTokenState(null);
-  }, []);
-
-  useEffect(
-    () => registerAccessTokenReader(() => accessTokenRef.current),
-    [],
+  const initializedRef = useRef(false);
+  const getInitializedToken = () => {
+    if (!initializedRef.current) {
+      initializedRef.current = true;
+      initializeAccessToken();
+    }
+    return getAccessToken();
+  };
+  const accessToken = useSyncExternalStore(
+    subscribeToAccessToken,
+    getInitializedToken,
+    () => null,
   );
 
   const value = useMemo(
     () => ({
       hasAccessToken: accessToken !== null,
       setAccessToken,
-      logout,
+      logout: clearAccessToken,
     }),
-    [accessToken, setAccessToken, logout],
+    [accessToken],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

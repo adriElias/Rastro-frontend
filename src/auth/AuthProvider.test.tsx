@@ -7,10 +7,11 @@ import {
 } from "axios";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { AuthProvider } from "@/auth/AuthProvider";
+import { ACCESS_TOKEN_STORAGE_KEY, clearAccessToken } from "@/auth/authTokenStore";
 import { useAuth } from "@/auth/useAuth";
 import { apiClient } from "@/services/apiClient";
 
-const TEST_TOKEN = "unit-test-access-token";
+const TEST_TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIiwiZXhwIjo0MTAyNDQ0ODAwfQ.signature";
 
 function AuthStateProbe() {
   const { hasAccessToken, setAccessToken, logout } = useAuth();
@@ -62,14 +63,13 @@ async function sendRequest(config: AxiosRequestConfig = {}) {
 
 afterEach(() => {
   cleanup();
+  clearAccessToken();
+  localStorage.clear();
   vi.restoreAllMocks();
 });
 
 describe("AuthProvider", () => {
-  it("starts without a token and never uses persistent browser storage", () => {
-    const getItem = vi.spyOn(Storage.prototype, "getItem");
-    const setItem = vi.spyOn(Storage.prototype, "setItem");
-    const removeItem = vi.spyOn(Storage.prototype, "removeItem");
+  it("starts without a token when storage has no persisted session", () => {
     const { container } = renderAuthState();
 
     expect(within(container).getByTestId("auth-state")).toHaveTextContent(
@@ -77,9 +77,36 @@ describe("AuthProvider", () => {
     );
     fireEvent.click(within(container).getByRole("button", { name: "Set test token" }));
     fireEvent.click(within(container).getByRole("button", { name: "Log out" }));
-    expect(getItem).not.toHaveBeenCalled();
-    expect(setItem).not.toHaveBeenCalled();
-    expect(removeItem).not.toHaveBeenCalled();
+    expect(localStorage.getItem("rastro.accessToken")).toBeNull();
+  });
+
+  it("restores a persisted token before rendering authenticated state", () => {
+    localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, TEST_TOKEN);
+
+    const { container } = renderAuthState();
+
+    expect(within(container).getByTestId("auth-state")).toHaveTextContent(
+      "token-present",
+    );
+  });
+
+  it("updates React authentication state when another tab logs out", () => {
+    localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, TEST_TOKEN);
+    const { container } = renderAuthState();
+
+    act(() => {
+      window.dispatchEvent(
+        new StorageEvent("storage", {
+          key: ACCESS_TOKEN_STORAGE_KEY,
+          newValue: null,
+          storageArea: localStorage,
+        }),
+      );
+    });
+
+    expect(within(container).getByTestId("auth-state")).toHaveTextContent(
+      "no-token",
+    );
   });
 
   it("sets and clears the in-memory token through the public context", () => {
